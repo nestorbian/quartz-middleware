@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>定时任务列表页面</title>
+<link th:href="@{/css/css.css}" rel="stylesheet" type="text/css" />
+<link th:href="@{/css/default.css}" rel="stylesheet" type="text/css" />
+<link th:href="@{/css/detail.css}" rel="stylesheet" type="text/css" />
+<style>
+	button {
+		margin: 0 2px;
+	    padding: 4px 12px;
+	    display: inline-block;
+	    height: 32px;
+	    font-size: 14px;
+	    color: #333;
+	    line-height: 24px;
+	    text-align: center;
+	    vertical-align: top;
+	    background-color: #fff;
+	    border: 1px solid #ccc;
+	    border-radius: 4px;
+	    outline: none;
+	}
+	button:hover {
+	    color: #333;
+	    background-color: #d4d4d4;
+	    border-color: #8c8c8c;
+	}
+</style>
+</head>
+<body>
+<div class="page-container f-bg-f5f5f5">
+    <div class="f-wma f-mt-20 f-mb-40">
+        
+        <div class="page-main">
+            <div class="m-panel" style="min-height:760px;">
+                <ul class="nav-tabs">
+                    <li class="z-active"><a th:href="@{/task-list/1}">定时任务列表</a></li>
+                    <li class="add">
+                    	<div class="add-address">
+	                    	<div class="buttons">
+	                    		<a class="u-button" th:href="@{/task-edit-page}">新增定时任务</a>
+	                    		<a class="u-button" href="javascript:void(0)" th:onclick="'restartAll()'">全部重启</a>
+	                    		<a class="u-button" th:href="@{/task-record-list?pageNumber=1&taskNo=&taskStatus=}">任务执行记录</a>
+	                    	</div>
+                    	</div>
+                    </li>
+                </ul>
+                <div class="acc-record">
+                    <div class="m-table">
+                        <table width="100%">
+                            <thead>
+                                <tr>
+                                	<th width="">序号</th>
+                                    <th width="">任务编号</th>
+                                    <th width="">任务名称</th>
+                                    <th width="">定时配置</th>
+                                    <th width="">冻结状态</th>
+                                    <th width="">执行方式</th>
+                                    <th width="">创建时间</th>
+                                    <th width="">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="taskInfo,iterStat : ${page.results}">
+                                	<td align="center" th:text="${iterStat.count}"></td>
+                                    <td align="center"><a th:href="@{|/task-detail/${taskInfo.id}|}" th:text="${taskInfo.taskNo}"></a></td>
+                                    <td align="center" th:text="${taskInfo.taskName}"></td>
+                                    <td align="center" th:text="${taskInfo.schedulerRule}"></td>
+                                    <td align="center">
+                                    	<span th:if="${taskInfo.frozenStatus.toString() == 'FROZEN'}">已冻结</span>
+                                    	<span th:if="${taskInfo.frozenStatus.toString() == 'UNFROZEN'}">未冻结</span>
+                                    	<span th:if="${taskInfo.frozenStatus.toString() == 'INIT'}">初始</span>
+                                    </td>
+                                    <td align="center" th:text="${taskInfo.sendType}"></td>
+                                    <td align="center" th:text="${#temporals.format(taskInfo.createTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                                    <td align="center">
+                                   		<a th:if="${taskInfo.frozenStatus.toString() == 'FROZEN' || taskInfo.frozenStatus.toString() == 'INIT'}" href="javascript:void(0)" th:onclick="|start('${taskInfo.id}')|">启动</a>
+                                   		<a th:if="${taskInfo.frozenStatus.toString() == 'UNFROZEN'}" href="javascript:void(0)" th:onclick="|pause('${taskInfo.id}')|">暂停</a>
+                                   		<a th:if="${taskInfo.frozenStatus.toString() == 'UNFROZEN'}" href="javascript:void(0)" th:onclick="|restart('${taskInfo.id}')|">重启</a>
+                                    	<a href="javascript:void(0)" th:onclick="|execute('${taskInfo.id}')|">立刻运行</a>   
+                                    	<a th:href="@{|/task-edit-page?id=${taskInfo.id}|}">修改</a>
+                                    	<a th:href="@{|/task-detail/${taskInfo.id}|}">详情</a>
+                                    	<a href="javascript:void(0)" th:onclick="|deleteTask('${taskInfo.id}')|">删除</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="m-page f-mt-40" id="page">
+                    	<button th:href="@{/task-list/1}" class="first">第一页</button>
+                    	<button class="first" th:onclick="|prePage(${page.pageNumber - 1})|">上一页</button>
+                    	<span th:text="|当前第${page.pageNumber}页，共${page.totalPages}页|"></span>
+                    	<button class="first" th:onclick="|nextPage(${page.pageNumber + 1}, ${page.totalPages})|">下一页</button>
+                    	<button th:href="@{|/task-list/${page.totalPages}|}" class="first">最末页</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/js/jquery-1.11.3.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.infieldlabel.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/script.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+var errorMessage = /*[[${errorMessage}]]*/;
+var basePath = /*[[${#httpServletRequest.getContextPath()}]]*/;
+if (errorMessage) {
+	alert(errorMessage);
+}
+
+function prePage(pageNum) {
+	if (pageNum > 0) {
+		window.location.href = basePath + '/task-list/' + pageNum;
+	}
+}
+
+function nextPage(pageNum, totalPages) {
+	if (pageNum <= totalPages) {
+		window.location.href = basePath + '/task-list/' + pageNum;
+	}
+}
+
+function pause(param){
+	if(confirm("确定要暂停该定时任务？")){
+		$.ajax({
+	    	url: basePath + '/pauseTask/' + param,
+	    	data: '',
+	        type: 'GET',
+			dataType : "text",
+	        success:function (data, textStatus) {
+	        	alert(data);
+	        	window.location.href = basePath + '/task-list/1';
+	        }
+	    });
+	}
+}
+
+function start(param){
+	if(confirm("确定要启动该定时任务？")){
+		$.ajax({
+	    	url: basePath + '/runTask/' + param,
+	    	data: '',
+	        type: 'GET',
+			dataType : "text",
+	        success:function (data, textStatus) {
+	        	alert(data);
+	        	window.location.href = basePath + '/task-list/1';
+	        }
+	    });
+	}
+}
+
+function restartAll(){
+	if(confirm("确定要重启全部正在运行的定时任务？")){
+		$.ajax({
+	    	url: basePath + '/resumeAllTask',
+	    	data: '',
+	        type: 'GET',
+			dataType : "text",
+	        success:function (data, textStatus) {
+	        	alert(data);
+	        }
+	    });
+	}
+}
+
+function restart(param){
+	if(confirm("确定要重启该定时任务？")) {
+		$.ajax({
+	    	url: basePath + '/resumeTask/' + param,
+	    	data: '',
+	        type: 'GET',
+			dataType : "text",
+	        success:function (data, textStatus) {
+	        	alert(data);
+	        }
+	    });
+	}
+}
+
+function execute(param){
+	if(confirm("确定要立即执行当前任务一次？")){
+		$.ajax({
+	    	url: basePath + '/executeOnce/' + param,
+	    	data: '',
+	        type: 'GET',
+			dataType : "text",
+	        success:function (data, textStatus) {
+	        	alert(data);
+	        }
+	    });
+	}
+}
+
+function deleteTask(param){
+	if(confirm("确定要删除当前任务？")){
+		$.ajax({
+	    	url: basePath + '/deleteTask/' + param,
+	    	data: '',
+	        type: 'GET',
+			dataType : "text",
+	        success:function (data, textStatus) {
+	        	alert(data);
+	        	window.location.href = basePath + '/task-list/1';
+	        }
+	    });
+	}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+resttemplate:
+  retryTime: 3
+  maxTotal: 100
+  defaultMaxPerRoute: 10
+  timeToLive: 60
+  connectTimeout: 1000
+  connectionRequestTimeout: 500
+  socketTimeout: 77777
+  bufferRequestBody: true

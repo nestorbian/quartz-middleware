@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="applicationlogPath" source="endpoints.logfolder.folderPath"/>
+    
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />  
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <!-- This one is size based log appender, we will not use it -->
+    <!-- <include resource="org/springframework/boot/logging/logback/file-appender.xml" /> -->
+    
+    <jmxConfigurator/>
+    
+     <!-- This one is time based log appender, we will use it -->
+    <appender name="FILE_TIME_BASED" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">   
+            <fileNamePattern>${applicationlogPath}/quartz-task.%d{yyyy-MM-dd}.log</fileNamePattern>   
+            <maxHistory>30</maxHistory>    
+        </rollingPolicy>   
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>   
+        </encoder>   
+    </appender>  
+      
+    <root level="info">
+        <appender-ref ref="FILE_TIME_BASED" />   
+        <appender-ref ref="CONSOLE" />
+    </root>   
+</configuration>

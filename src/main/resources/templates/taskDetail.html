@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>定时任务详情</title>
+<link th:href="@{/css/css.css}" rel="stylesheet" type="text/css" />
+<link th:href="@{/css/default.css}" rel="stylesheet" type="text/css" />
+<link th:href="@{/css/detail.css}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div class="page-container f-bg-f8f8f8">
+    <div class="f-wma f-mt-40 f-mb-100">
+        <div class="order-detail">
+            <div class="m-caption">定时任务详情</div>
+            <div class="m-detail">
+                <div class="item">
+                    <div class="label"></div>
+                    <div class="info">
+                        <p><span>任务编号 ：</span><span th:text="${taskInfo.taskNo}"></span></p>
+                        <p><span>任务名称 ：</span><span th:text="${taskInfo.taskName}"></span></p>
+                        <p><span>定时配置 ：</span><span th:text="${taskInfo.schedulerRule}"></span></p>
+                        <p><span>冻结状态 ：</span><span th:if="${taskInfo.frozenStatus.toString() == 'FROZEN'}">已冻结</span>
+                                    	<span th:if="${taskInfo.frozenStatus.toString() == 'UNFROZEN'}">未冻结</span>
+                                    	<span th:if="${taskInfo.frozenStatus.toString() == 'INIT'}">初始化</span></p>
+                        <p><span>冻结时间 ：</span><span th:text="${#temporals.format(taskInfo.frozenTime,'yyyy-MM-dd HH:mm:ss')}"></span></p>
+                        <p><span>解冻时间 ：</span><span th:text="${#temporals.format(taskInfo.unfrozenTime,'yyyy-MM-dd HH:mm:ss')}"></span></p>
+                        <p><span>执行方式 ：</span><span th:text="${taskInfo.sendType}"></span></p>
+                        <p><span>url ：</span><span th:text="${taskInfo.url}"></span></p>
+                        <p><span>执行参数 ：</span><span th:text="${taskInfo.executeParamter}"></span></p>
+                        <p><span>创建时间 ：</span><span th:text="${#temporals.format(taskInfo.createTime,'yyyy-MM-dd HH:mm:ss')}"></span></p>
+                        <p><span>修改时间 ：</span><span th:text="${#temporals.format(taskInfo.lastModifyTime,'yyyy-MM-dd HH:mm:ss')}"></span></p>
+<!--                         <p><span>上一次执行时间 ：</span><span th:text="${taskInfo.schedulerRule}">${detail.preExecuteTime }</span></p>
+                        <p><span>上一次执行状态 ：</span><span th:text="${taskInfo.schedulerRule}">${detail.taskStatus }</span></p> -->
+                    </div>
+                </div>
+            </div>
+            <div class="m-action"><a href="javascript:history.back(-1);" class="u-button">关闭</a> </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/js/jquery-1.11.3.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.infieldlabel.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/script.js}"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /quartzTask/api/v1
+    
+spring:
+  thymeleaf: 
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+  data:
+    mongodb:
+      uri: mongodb://127.0.0.1:27017/zhengwu
+  application: 
+    name: spirng-boot-rabbitmq
+  rabbitmq: 
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+      
+logging:
+  config: classpath:logback-config.xml

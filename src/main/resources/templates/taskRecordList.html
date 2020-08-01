@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>定时任务记录列表</title>
+<link th:href="@{/css/css.css}" rel="stylesheet" type="text/css" />
+<link th:href="@{/css/default.css}" rel="stylesheet" type="text/css" />
+<link th:href="@{/css/detail.css}" rel="stylesheet" type="text/css" />
+<style type="text/css">
+	.btn {
+	    display: inline-block;
+	    width: 82px;
+	    height: 28px;
+	    border: 1px solid #e9412d;
+	    background: #e9412d;
+	    font-size: 12px;
+	    color: #fff;
+	    text-align: center;
+	    line-height: 28px;
+	    vertical-align: top;
+	    border-radius: 4px;
+	    -webkit-transition: all .2s linear;
+	    transition: all .2s linear;
+	    margin-left: 20px;
+	    text-decoration: none !important;
+	}
+	button {
+		margin: 0 2px;
+	    padding: 4px 12px;
+	    display: inline-block;
+	    height: 32px;
+	    font-size: 14px;
+	    color: #333;
+	    line-height: 24px;
+	    text-align: center;
+	    vertical-align: top;
+	    background-color: #fff;
+	    border: 1px solid #ccc;
+	    border-radius: 4px;
+	    outline: none;
+	}
+	button:hover {
+	    color: #333;
+	    background-color: #d4d4d4;
+	    border-color: #8c8c8c;
+	}
+</style>
+</head>
+<body>
+<input type="hidden" id="taskNo" th:value="${taskNo}" />
+<input type="hidden" id="taskStatus" th:value="${taskStatus}" />
+<div class="page-container f-bg-f5f5f5">
+    <div class="f-wma f-mt-20 f-mb-40">
+        <div class="page-main">
+            <div class="m-panel" style="min-height:820px;">
+            <ul class="nav-tabs">
+                    <li class="z-active"><a th:href="@{/task-record-list?pageNumber=1&taskNo=&taskStatus=}">定时任务纪录列表</a></li>
+                    <li class="add">
+                    	<div class="add-address" style="text-align:center">
+                		<div class="buttons">
+	                    <a class="u-button" th:href="@{/task-list/1}">返回任务列表</a>
+                		</div>
+						</div>
+                    </li>
+                </ul>
+                <form id="recordForm" method="post">
+                <div class="acc-record" id="query">
+                	<div class="row-fluid">
+                		<div class="span12">
+                			<div class="control-group" style="float:left">
+								<label class="control-label">任务编号:</label>
+								<div class="controls">
+                					<input type="text" id="taskNoForSearch" th:value="${taskNo}">
+								</div>
+							</div>
+							<div class="control-group" style="float:left">
+								<label class="control-label">执行状态:</label>
+								<div class="controls">
+									<select id="taskStatusForSearch">
+										<option value="" th:selected="${taskStatus == null || taskStatus == ''}">全部</option>
+										<option th:value="SUCCESS" th:selected="${taskStatus == 'SUCCESS'}">成功</option>
+										<option th:value="FAILED" th:selected="${taskStatus == 'FAILED'}">失败</option>
+									</select> 
+								</div>
+							</div>
+							<a class="btn" href="javascript:void(0)" th:onclick="'queryForm()'">查询</a>
+							<a class="btn" href="javascript:void(0)" th:onclick="'reset()'">清空</a>
+						</div>
+					</div>
+                	<!-- <div class="add-address" style="text-align:center"> -->
+                		<!-- <div class="buttons"> -->
+
+                		<!-- </div> -->
+					<!-- </div> -->
+                </div>
+                </form>
+                <div class="acc-record">
+                    <div class="m-table">
+                        <table width="100%">
+                            <thead>
+                                <tr>
+                                	<th width="">序号</th>
+                                    <th width="">任务编号</th>
+                                    <th width="">任务名称</th>
+                                    <th width="">执行时间</th>
+                                    <th width="">执行状态</th>
+                                    <th width="">失败原因</th>
+                                    <th width="">创建时间</th>
+                                    <th width="">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            	<tr th:each="taskRecord,iterStat : ${page.results}">
+                                	<td align="center" th:text="${iterStat.count + (page.pageNumber - 1) * page.pageSize}"></td>
+                                    <td align="center" th:text="${taskRecord.taskNo}"></td>
+                                    <td align="center" th:text="${taskRecord.taskName}"></td>
+                                    <td align="center" th:text="${#temporals.format(taskRecord.executeTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                                    <td align="center">
+                                    	<span th:if="${taskRecord.taskStatus.toString() == 'SUCCESS'}">成功</span>
+                                    	<span th:if="${taskRecord.taskStatus.toString() == 'FAILED'}">失败</span>
+                                    </td>
+                                    <td align="center" th:title="${taskRecord.failReason}" th:text="${taskRecord.failReason}"></td>
+                                    <td align="center" th:text="${#temporals.format(taskRecord.createTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                                    <td align="center">
+                                    	<a href="javascript:void(0)" th:onclick="|deleteTaskRecord('${taskRecord.id}',${page.pageNumber},'${taskNo}','${taskStatus}')|">删除</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="m-page f-mt-40" id="page">
+                    	<button th:onclick="'firstPage()'" class="first">第一页</button>
+                    	<button class="first" th:onclick="|prePage(${page.pageNumber - 1})|">上一页</button>
+                    	<span th:text="|当前第${page.pageNumber}页，共${page.totalPages}页|"></span>
+                    	<button class="first" th:onclick="|nextPage(${page.pageNumber + 1}, ${page.totalPages})|">下一页</button>
+                    	<button th:onclick="|lastPage(${page.totalPages})|" class="first">最末页</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/js/jquery-1.11.3.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.infieldlabel.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/script.js}"></script>
+<script type="text/javascript"  th:inline="javascript">
+var basePath = /*[[${#httpServletRequest.getContextPath()}]]*/;
+
+function firstPage() {
+	window.location.href = basePath + '/task-record-list?pageNumber=1&taskNo=' + $("#taskNo").val() +
+	'&taskStatus=' + $("#taskStatus").val();
+}
+
+function lastPage(totalPages) {
+	window.location.href = basePath + '/task-record-list?pageNumber=' + totalPages + '&taskNo=' +
+	$("#taskNo").val() + '&taskStatus=' + $("#taskStatus").val();
+}
+
+function prePage(pageNumber) {
+	if (pageNumber > 0) {
+		window.location.href = basePath + '/task-record-list?pageNumber=' + pageNumber + '&taskNo=' +
+		$("#taskNo").val() + '&taskStatus=' + $("#taskStatus").val();
+	}
+}
+
+function nextPage(pageNumber, totalPages) {
+	if (pageNumber <= totalPages) {
+		window.location.href = basePath + '/task-record-list?pageNumber=' + pageNumber + '&taskNo=' +
+		$("#taskNo").val() + '&taskStatus=' + $("#taskStatus").val();
+	}
+}
+
+function reset(){
+	$("#recordForm").find(':input',':select').val('').removeAttr('checked').removeAttr('selected');
+}
+
+function queryForm(){
+	window.location.href = basePath + '/task-record-list?pageNumber=1&taskNo=' + $("#taskNoForSearch").val() +
+	'&taskStatus=' + $("#taskStatusForSearch").val();
+}
+
+function deleteTaskRecord(id, pageNumber, taskNo, taskStatus) {
+	if (confirm("确认要删除这条记录吗")) {
+		window.location.href = basePath + "/deleteTaskRecord/" + id + "?pageNumber=" + pageNumber + "&taskNo=" +
+				taskNo + "&taskStatus=" + taskStatus;
+	}
+}
+</script>
+</body>
+</html>
