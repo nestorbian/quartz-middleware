@@ -297,6 +297,9 @@ public class TaskInformationServiceImpl implements TaskInformationService {
 		CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(task.getSchedulerRule());
 		CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
 		try {
+			/* 	trigger与jobkey是一对一关系，不匹配会报错
+				jobkey与trigger是一对多关系
+			 */
 			scheduler.scheduleJob(jobDetail, trigger);
 			log.info("任务 "+ task.getTaskNo() +" 定时规则 :" + task.getSchedulerRule() + " 加载成功");
 		} catch (Exception e) {

@@ -34,14 +34,12 @@ public class RabbitConfig {
     
     @Bean
     public Connection connection(ConnectionFactory connectionFactory) throws IOException, TimeoutException {
-    	Connection connection = connectionFactory.createConnection();
-    	return connection;
+        return connectionFactory.createConnection();
     }
     
     @Bean
     public Channel channel(Connection connection) throws IOException {
-    	Channel channel = connection.createChannel(false);
-    	return channel;
+        return connection.createChannel(false);
     }
     
 }

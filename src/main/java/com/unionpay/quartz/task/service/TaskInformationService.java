@@ -5,23 +5,23 @@ import com.unionpay.quartz.task.entity.TaskInformation;
 
 public interface TaskInformationService {
 	
-	public void resumeTask(String id);
+	void resumeTask(String id);
 	
-	public void resumeAllTask();
+	void resumeAllTask();
 	
-	public void runTask(String id);
+	void runTask(String id);
 	
-	public void pauseTask(String id);
+	void pauseTask(String id);
 	
-	public ResultWithPagination getTaskInfoListByPage(int pageNumber);
+	ResultWithPagination getTaskInfoListByPage(int pageNumber);
 	
-	public String editTaskInfo(TaskInformation entity);
+	String editTaskInfo(TaskInformation entity);
 	
-	public TaskInformation getTaskInfoById(String id);
+	TaskInformation getTaskInfoById(String id);
 	
-	public TaskInformation getTaskInfoByTaskNo(String taskNo);
+	TaskInformation getTaskInfoByTaskNo(String taskNo);
 	
-	public void executeOnce(String id);
+	void executeOnce(String id);
 	
-	public void deleteTask(String id);
+	void deleteTask(String id);
 }
